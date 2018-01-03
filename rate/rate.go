@@ -18,7 +18,7 @@ func NewLimiter(r int, b int) *Limiter {
 	l := &Limiter{
 		r,
 		b,
-		r,
+		b,
 		make(chan interface{}),
 	}
 	go refreshLimiter(l)
@@ -40,20 +40,18 @@ func (l *Limiter) StopLimiting() {
 }
 
 func refreshLimiter(l *Limiter) {
-
 	for {
 		select {
 		case <-l.destroy:
 			return
 		default:
+			diff := l.bucketSize - l.remainingRequests
+			if diff > l.rate {
+				l.remainingRequests = l.remainingRequests + l.rate
+			} else {
+				l.remainingRequests = l.remainingRequests + diff
+			}
+			time.Sleep(1000 * time.Millisecond)
 		}
-		diff := l.remainingRequests - l.bucketSize
-		if diff > l.rate {
-			l.remainingRequests = l.remainingRequests + l.rate
-		} else {
-			l.remainingRequests = l.remainingRequests + diff
-		}
-		// fmt.Printf("refreshed L: %+v", l)
-		time.Sleep(1000 * time.Millisecond)
 	}
 }

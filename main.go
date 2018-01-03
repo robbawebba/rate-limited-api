@@ -14,5 +14,5 @@ func main() {
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusNoContent)
 	})
-	http.ListenAndServe(fmt.Sprintf(":%d", port), mux)
+	http.ListenAndServe(fmt.Sprintf(":%d", port), limit(mux))
 }
